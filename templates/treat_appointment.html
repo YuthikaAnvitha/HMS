@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Treat Appointment #{{ appt.id }} - Doctor Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h3><i class="bi bi-clipboard-pulse me-2"></i>Treat Appointment #{{ appt.id }}</h3>
+      <p class="text-muted mb-0">Patient: {{ appt.patient.user.full_name }} | Date: {{ appt.date }} | Time: {{ appt.time }}</p>
+    </div>
+    <div>
+      <a class="btn btn-outline-secondary" href="{{ url_for('doctor_dashboard') }}">
+        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="content-area">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="bi bi-person-circle me-2"></i>Patient Information
+          </h6>
+        </div>
+        <div class="card-body">
+          <p><strong>Name:</strong> {{ appt.patient.user.full_name }}</p>
+          <p><strong>Appointment Date:</strong> {{ appt.date }}</p>
+          <p><strong>Appointment Time:</strong> {{ appt.time }}</p>
+          <p><strong>Status:</strong> 
+            <span class="badge bg-{% if appt.status == 'Completed' %}success{% elif appt.status == 'Cancelled' %}danger{% else %}primary{% endif %}">
+              {{ appt.status }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="bi bi-clipboard-check me-2"></i>Treatment Form
+          </h6>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            <div class="mb-3">
+              <label for="diagnosis" class="form-label">
+                <i class="bi bi-clipboard-pulse me-1"></i>Diagnosis
+              </label>
+              <textarea class="form-control" name="diagnosis" id="diagnosis" rows="4" placeholder="Enter diagnosis details"></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label for="prescription" class="form-label">
+                <i class="bi bi-capsule me-1"></i>Prescription
+              </label>
+              <textarea class="form-control" name="prescription" id="prescription" rows="4" placeholder="Enter prescription details"></textarea>
+            </div>
+            
+            <div class="mb-4">
+              <label for="notes" class="form-label">
+                <i class="bi bi-journal-text me-1"></i>Additional Notes
+              </label>
+              <textarea class="form-control" name="notes" id="notes" rows="3" placeholder="Enter any additional notes"></textarea>
+            </div>
+            
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle me-2"></i>Save Treatment & Mark Completed
+              </button>
+              <a class="btn btn-outline-secondary" href="{{ url_for('doctor_dashboard') }}">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

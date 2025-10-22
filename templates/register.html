@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Patient Registration - Hospital Management System{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-lg">
+      <div class="card-header text-center py-4">
+        <h3 class="mb-0">
+          <i class="bi bi-person-plus text-success me-2"></i>
+          Patient Registration
+        </h3>
+        <p class="text-muted mt-2 mb-0">Create your patient account</p>
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          <div class="mb-3">
+            <label for="full_name" class="form-label">
+              <i class="bi bi-person me-1"></i>Full Name
+            </label>
+            <input name="full_name" id="full_name" class="form-control form-control-lg" 
+                   placeholder="Enter your full name" required autofocus>
+          </div>
+          
+          <div class="mb-3">
+            <label for="username" class="form-label">
+              <i class="bi bi-at me-1"></i>Username
+            </label>
+            <input name="username" id="username" class="form-control form-control-lg" 
+                   placeholder="Choose a username" required>
+          </div>
+          
+          <div class="mb-4">
+            <label for="password" class="form-label">
+              <i class="bi bi-lock me-1"></i>Password
+            </label>
+            <input name="password" type="password" id="password" class="form-control form-control-lg" 
+                   placeholder="Create a secure password" required>
+          </div>
+          
+          <div class="d-grid gap-2 mb-3">
+            <button type="submit" class="btn btn-success btn-lg">
+              <i class="bi bi-person-plus me-2"></i>Create Account
+            </button>
+          </div>
+        </form>
+        
+        <div class="text-center">
+          <p class="text-muted mb-2">Already have an account?</p>
+          <a class="btn btn-outline-primary" href="{{ url_for('login') }}">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+          </a>
+        </div>
+        
+        <div class="text-center mt-3">
+          <a class="btn btn-link text-decoration-none" href="{{ url_for('login') }}">
+            <i class="bi bi-house me-2"></i>Back to Home
+          </a>
+        </div>
+      </div>
+      
+      <div class="card-footer bg-light">
+        <div class="alert alert-info mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Note:</strong> This registration is for patients only. Doctors and administrators are created by system administrators.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

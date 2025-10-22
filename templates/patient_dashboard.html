@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Patient Dashboard - Hospital Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h3><i class="bi bi-person-heart me-2"></i>Welcome, {{ current_user.full_name or current_user.username }}!</h3>
+    <p class="text-muted mb-0">Book appointments and manage your health</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('patient_history') }}" class="btn btn-outline-primary">
+      <i class="bi bi-clock-history me-1"></i>History
+    </a>
+    <button class="btn btn-outline-secondary" onclick="alert('Profile editing feature coming soon!')">
+      <i class="bi bi-person-gear me-1"></i>Edit Profile
+    </button>
+  </div>
+</div>
+
+<!-- Departments Section -->
+<div class="content-area mb-4">
+  <h5 class="mb-3">
+    <i class="bi bi-building me-2"></i>Departments
+  </h5>
+  {% if departments %}
+    <div class="row">
+      {% for dept in departments %}
+        <div class="col-12 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <h6 class="card-title mb-1">{{ dept.name }}</h6>
+                  <p class="card-text text-muted small mb-0">{{ dept.description or 'Specialized medical care' }}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                  <a href="{{ url_for('department_details', dept_id=dept.id) }}" class="btn btn-outline-primary">
+                    <i class="bi bi-eye me-1"></i>View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-4">
+      <i class="bi bi-building text-muted" style="font-size: 3rem;"></i>
+      <p class="text-muted mt-2 mb-0">No departments available</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Upcoming Appointments Section -->
+<div class="content-area mb-4">
+  <h5 class="mb-3">
+    <i class="bi bi-calendar-event me-2"></i>Upcoming Appointments
+  </h5>
+  {% if upcoming_appointments %}
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash me-1"></i>ID</th>
+            <th><i class="bi bi-person-badge me-1"></i>Doctor</th>
+            <th><i class="bi bi-calendar me-1"></i>Date</th>
+            <th><i class="bi bi-clock me-1"></i>Time</th>
+            <th><i class="bi bi-flag me-1"></i>Status</th>
+            <th><i class="bi bi-gear me-1"></i>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in upcoming_appointments %}
+            <tr>
+              <td><span class="badge bg-secondary">#{{ a.id }}</span></td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-person-badge me-2 text-muted"></i>
+                  {{ a.doctor.user.full_name }}
+                </div>
+              </td>
+              <td>{{ a.date }}</td>
+              <td>
+                <span class="badge bg-light text-dark">{{ a.time }}</span>
+              </td>
+              <td>
+                <span class="badge bg-{% if a.status == 'Completed' %}success{% elif a.status == 'Cancelled' %}danger{% else %}primary{% endif %}">
+                  {{ a.status }}
+                </span>
+              </td>
+              <td>
+                {% if a.status != 'Cancelled' and a.status != 'Completed' %}
+                  <form method="post" action="{{ url_for('cancel_appointment', appt_id=a.id) }}" class="d-inline">
+                    <button class="btn btn-sm btn-outline-danger" 
+                            onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                      <i class="bi bi-x-circle me-1"></i>Cancel
+                    </button>
+                  </form>
+                {% else %}
+                  <span class="text-muted small">No action available</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+      <h5 class="text-muted mt-3">No upcoming appointments</h5>
+      <p class="text-muted">You don't have any upcoming appointments.</p>
+      <p class="text-muted">Browse departments above to book your appointment!</p>
+    </div>
+  {% endif %}
+</div>
+
+<div class="content-area mb-4">
+  <h5 class="mb-3">
+    <i class="bi bi-search me-2"></i>Find a Doctor
+  </h5>
+  <form class="row g-3" action="{{ url_for('search_doctors') }}">
+    <div class="col-md-4">
+      <label class="form-label">Doctor Name</label>
+      <input name="q" class="form-control" placeholder="Search by name or username">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Specialization</label>
+      <input name="dept" class="form-control" placeholder="Specialization or department">
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button class="btn btn-primary w-100">
+        <i class="bi bi-search me-2"></i>Search Doctors
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="content-area mb-4">
+  <h5 class="mb-3">
+    <i class="bi bi-person-badge me-2"></i>Available Doctors
+  </h5>
+  {% if doctors %}
+    <div class="row">
+      {% for d in doctors %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="card doctor-card h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <div class="flex-shrink-0">
+                  <i class="bi bi-person-badge text-success" style="font-size: 2rem;"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="card-title mb-1">{{ d.user.full_name }}</h6>
+                  <p class="card-text text-muted mb-2">
+                    <i class="bi bi-mortarboard me-1"></i>{{ d.specialization }}
+                  </p>
+                  {% if d.department %}
+                    <p class="card-text text-muted small mb-3">
+                      <i class="bi bi-building me-1"></i>{{ d.department.name }}
+                    </p>
+                  {% endif %}
+                  <a class="btn btn-outline-primary btn-sm" href="{{ url_for('doctor_profile', doctor_id=d.id) }}">
+                    <i class="bi bi-calendar-plus me-1"></i>View & Book Appointment
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-4">
+      <i class="bi bi-person-x text-muted" style="font-size: 3rem;"></i>
+      <p class="text-muted mt-2 mb-0">No doctors available</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

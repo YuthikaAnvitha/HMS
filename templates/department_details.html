@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}{{ department.name }} - Hospital Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h3><i class="bi bi-building me-2"></i>{{ department.name }}</h3>
+    <p class="text-muted mb-0">Department Details and Available Doctors</p>
+  </div>
+  <div>
+    <a href="{{ url_for('patient_dashboard') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+  </div>
+</div>
+
+<!-- Overview Section -->
+<div class="content-area mb-4">
+  <h5 class="mb-3">
+    <i class="bi bi-info-circle me-2"></i>Overview
+  </h5>
+  <div class="card">
+    <div class="card-body">
+      <p class="card-text">
+        {{ department.description or 'This department provides specialized medical care and treatment services. Our experienced team of doctors is dedicated to providing the highest quality healthcare services to our patients.' }}
+      </p>
+      <p class="card-text">
+        We offer comprehensive medical services with state-of-the-art facilities and equipment. Our team is committed to ensuring the best possible outcomes for all our patients.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Doctors List Section -->
+<div class="content-area">
+  <h5 class="mb-3">
+    <i class="bi bi-person-badge me-2"></i>Doctor's List
+  </h5>
+  {% if doctors %}
+    <div class="row">
+      {% for doctor in doctors %}
+        <div class="col-12 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h6 class="card-title mb-1">{{ doctor.user.full_name }}</h6>
+                  <p class="card-text text-muted mb-1">
+                    <i class="bi bi-mortarboard me-1"></i>{{ doctor.specialization }}
+                  </p>
+                  <p class="card-text text-muted small mb-0">
+                    <i class="bi bi-building me-1"></i>{{ department.name }}
+                  </p>
+                </div>
+                <div class="col-md-6 text-end">
+                  <div class="btn-group" role="group">
+                    <a href="{{ url_for('patient_doctor_availability', doctor_id=doctor.id) }}" class="btn btn-outline-primary">
+                      <i class="bi bi-calendar-check me-1"></i>Check Availability
+                    </a>
+                    <a href="{{ url_for('doctor_profile_detail', doctor_id=doctor.id) }}" class="btn btn-outline-secondary">
+                      <i class="bi bi-eye me-1"></i>View Details
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-person-x text-muted" style="font-size: 4rem;"></i>
+      <h5 class="text-muted mt-3">No doctors available</h5>
+      <p class="text-muted">There are currently no doctors assigned to this department.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

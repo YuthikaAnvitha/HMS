@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Search Doctors - Hospital Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h3><i class="bi bi-search me-2"></i>Doctor Search Results</h3>
+      <p class="text-muted mb-0">Find the right doctor for your needs</p>
+    </div>
+    <div>
+      <a class="btn btn-outline-secondary" href="{{ url_for('patient_dashboard') }}">
+        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="content-area mb-4">
+  <form class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label">Doctor Name</label>
+      <input name="q" value="{{ q }}" class="form-control" placeholder="Search by name">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Specialization</label>
+      <input name="dept" value="{{ dept }}" class="form-control" placeholder="Specialization">
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button class="btn btn-primary w-100">
+        <i class="bi bi-search me-2"></i>Search
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="content-area">
+  {% if doctors %}
+    <div class="row">
+      {% for d in doctors %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="card doctor-card h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <div class="flex-shrink-0">
+                  <i class="bi bi-person-badge text-success" style="font-size: 2rem;"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="card-title mb-1">{{ d.user.full_name }}</h6>
+                  <p class="card-text text-muted mb-2">
+                    <i class="bi bi-mortarboard me-1"></i>{{ d.specialization }}
+                  </p>
+                  {% if d.department %}
+                    <p class="card-text text-muted small mb-3">
+                      <i class="bi bi-building me-1"></i>{{ d.department.name }}
+                    </p>
+                  {% endif %}
+                  <a class="btn btn-outline-primary btn-sm" href="{{ url_for('doctor_profile', doctor_id=d.id) }}">
+                    <i class="bi bi-calendar-plus me-1"></i>View & Book Appointment
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+      <h5 class="text-muted mt-3">No doctors found</h5>
+      <p class="text-muted">Try adjusting your search criteria or browse all available doctors.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

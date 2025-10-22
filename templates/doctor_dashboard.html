@@ -1,0 +1,828 @@
+{% extends 'base.html' %}
+{% block title %}Doctor Dashboard - Hospital Management System{% endblock %}
+{% block content %}
+<style>
+/* Enhanced styling for multi-select dropdowns */
+select[multiple] {
+  min-height: 120px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+select[multiple]:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+select[multiple] option {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+select[multiple] option:hover {
+  background-color: #e9ecef;
+}
+
+select[multiple] option:checked {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Enhanced textarea styling */
+textarea.form-control {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+textarea.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Form validation styling */
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.form-control.is-valid {
+  border-color: #198754;
+}
+
+/* Multi-select visual feedback */
+.multi-select-label {
+  transition: all 0.3s ease;
+}
+
+.multi-select-label.text-success {
+  font-weight: 600;
+}
+</style>
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h3><i class="bi bi-person-badge me-2"></i>Welcome, Dr. {{ doc.user.full_name }}</h3>
+      <p class="text-muted mb-0">Manage your appointments, patients, and availability</p>
+    </div>
+    <div>
+      <button class="btn btn-outline-primary" onclick="openAvailabilityModal()">
+        <i class="bi bi-calendar-week me-2"></i>Provide Availability
+      </button>
+    </div>
+  </div>
+  <div class="mt-2">
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('home') }}">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+  </div>
+  
+  
+</div>
+
+<div class="content-area mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Upcoming Appointments</h5>
+    <span class="badge bg-primary">{{ upcoming|length }} appointments</span>
+  </div>
+  {% if upcoming %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Patient Name</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Patient History</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in upcoming %}
+        <tr>
+          <td><span class="badge bg-secondary">{{ loop.index }}</span></td>
+          <td>
+            <i class="bi bi-person-heart me-2 text-primary"></i>{{ a.patient.user.full_name }}
+          </td>
+          <td>{{ a.date }}</td>
+          <td><span class="badge bg-light text-dark">{{ a.time }}</span></td>
+          <td>
+            <div class="btn-group btn-group-sm" role="group">
+              <button class="btn btn-outline-info"
+                      onclick="openUpdateHistoryModal({{ a.id }}, {{ a.patient.id }}, '{{ a.patient.user.full_name }}', '{{ doc.user.full_name }}', '{{ doc.department.name if doc.department else 'General Practice' }}')">
+                <i class="bi bi-pencil-square me-1"></i>Update
+              </button>
+            </div>
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm" role="group">
+              <button class="btn btn-outline-success" title="Mark as Completed" onclick="markAsCompleted({{ a.id }}, '{{ a.patient.user.full_name }}')">
+                <i class="bi bi-check-circle"></i>
+              </button>
+              <button class="btn btn-outline-danger" title="Cancel" onclick="cancelAppointment({{ a.id }}, '{{ a.patient.user.full_name }}')">
+                <i class="bi bi-x-circle"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+    <h5 class="text-muted mt-3">No upcoming appointments</h5>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Completed Appointments Section -->
+<div class="content-area mb-4" id="completedSection" style="display: none;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Completed Appointments</h5>
+    <span class="badge bg-success" id="completedCount">0 appointments</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Patient Name</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="completedTableBody">
+        <!-- Completed appointments will be added here dynamically -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Cancelled Appointments Section -->
+<div class="content-area mb-4" id="cancelledSection" style="display: none;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-x-circle me-2"></i>Cancelled Appointments</h5>
+    <span class="badge bg-danger" id="cancelledCount">0 appointments</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Patient Name</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="cancelledTableBody">
+        <!-- Cancelled appointments will be added here dynamically -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="content-area">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-people me-2"></i>Assigned Patients</h5>
+  </div>
+  {% if patients %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Patient Name</th>
+          <th>View</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for name, patient in patients.items() %}
+        <tr>
+          <td><i class="bi bi-person-heart me-2 text-primary"></i>{{ name }}</td>
+          <td>
+            <button class="btn btn-outline-info btn-sm" onclick="openViewHistoryModalFetch({{ patient.id }}, '{{ name }}', '{{ doc.user.full_name }}', '{{ doc.department.name if doc.department else 'General Practice' }}')">
+              <i class="bi bi-eye me-1"></i>View
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center text-muted">No assigned patients</div>
+  {% endif %}
+</div>
+
+<!-- Update Patient History Modal -->
+<div class="modal fade" id="updateHistoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-clipboard-pulse me-2"></i>Update Patient History</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" id="updateHistoryForm" action="">
+        <div class="modal-body">
+          <input type="hidden" id="updateHistoryApptId" name="_appt_id">
+          <input type="hidden" id="updateHistoryPatientId">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Patient Name</label>
+              <input class="form-control" id="updateHistoryPatient" value="" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Department</label>
+              <input class="form-control" id="updateHistoryDepartment" value="" readonly>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-calendar-check me-2"></i>Visit Type</label>
+              <select class="form-select" name="visit_type" id="visitTypeSelect">
+                <option value="">Select Visit Type</option>
+                <option value="Regular Checkup">Regular Checkup</option>
+                <option value="Follow-up">Follow-up</option>
+                <option value="Emergency">Emergency</option>
+                <option value="Consultation">Consultation</option>
+                <option value="Surgery">Surgery</option>
+                <option value="Routine Check">Routine Check</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-clipboard-data me-2"></i>Tests Done</label>
+              <select class="form-select" name="tests_done" id="testsDoneSelect" multiple size="4">
+                <option value="Blood Test">Blood Test</option>
+                <option value="X-Ray">X-Ray</option>
+                <option value="MRI">MRI</option>
+                <option value="CT Scan">CT Scan</option>
+                <option value="ECG">ECG</option>
+                <option value="Ultrasound">Ultrasound</option>
+                <option value="Urine Test">Urine Test</option>
+                <option value="Stool Test">Stool Test</option>
+                <option value="Biopsy">Biopsy</option>
+                <option value="Endoscopy">Endoscopy</option>
+                <option value="Colonoscopy">Colonoscopy</option>
+                <option value="Mammography">Mammography</option>
+              </select>
+              <div class="form-text">
+                <i class="bi bi-info-circle me-1"></i>Hold Ctrl/⌘ to select multiple tests
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-clipboard-pulse me-2"></i>Diagnosis <span class="text-danger">*</span></label>
+              <textarea class="form-control" name="diagnosis" id="diagnosisTextarea" rows="4" placeholder="Enter detailed diagnosis..." required></textarea>
+              <div class="form-text">Please provide a detailed diagnosis</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-prescription me-2"></i>Prescription <span class="text-danger">*</span></label>
+              <textarea class="form-control" name="prescription" id="prescriptionTextarea" rows="4" placeholder="Enter prescription details..." required></textarea>
+              <div class="form-text">Please provide detailed prescription instructions</div>
+            </div>
+          </div>
+          <div class="mb-0">
+            <label class="form-label"><i class="bi bi-capsule me-2"></i>Medicines</label>
+            <select class="form-select" name="medicines" id="medicinesSelect" multiple size="4">
+              <option value="Paracetamol">Paracetamol</option>
+              <option value="Amoxicillin">Amoxicillin</option>
+              <option value="Ibuprofen">Ibuprofen</option>
+              <option value="Lisinopril">Lisinopril</option>
+              <option value="Atorvastatin">Atorvastatin</option>
+              <option value="Metformin">Metformin</option>
+              <option value="Omeprazole">Omeprazole</option>
+              <option value="Aspirin">Aspirin</option>
+              <option value="Ciprofloxacin">Ciprofloxacin</option>
+              <option value="Doxycycline">Doxycycline</option>
+              <option value="Prednisone">Prednisone</option>
+              <option value="Warfarin">Warfarin</option>
+            </select>
+            <div class="form-text">
+              <i class="bi bi-info-circle me-1"></i>Hold Ctrl/⌘ to select multiple medicines
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- View Patient History Modal -->
+<div class="modal fade" id="viewHistoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>Patient History</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Patient Name</label>
+            <input class="form-control" id="viewHistoryPatient" readonly>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Doctor</label>
+            <input class="form-control" id="viewHistoryDoctor" readonly>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Department</label>
+            <input class="form-control" id="viewHistoryDepartment" readonly>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Visit Type</th>
+                <th>Tests Done</th>
+                <th>Diagnosis</th>
+                <th>Prescription</th>
+                <th>Medicines</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="viewHistoryTable"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Provide Availability Modal -->
+<div class="modal fade" id="availabilityModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-calendar-week me-2"></i>Provide Availability</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          {% for d in next7 %}
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <strong>{{ d.strftime('%A, %B %d') }}</strong>
+              </div>
+              <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                  {% set slots = availability.get(d.isoformat(), ['09:00','10:00','11:00','14:00','15:00']) %}
+                  {% for t in ['09:00','10:00','11:00','12:00','14:00','15:00','16:00'] %}
+                    {% set active = t in slots %}
+                    <button type="button"
+                            class="btn btn-sm toggle-slot {{ 'btn-success' if active else 'btn-outline-danger' }}"
+                            data-date="{{ d.isoformat() }}" data-time="{{ t }}">
+                      {{ t }}
+                    </button>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="{{ url_for('doctor_availability') }}" id="availabilityForm">
+          {% for d in next7 %}
+            <input type="hidden" name="slots-{{ d.isoformat() }}" id="hidden-{{ d.isoformat() }}" value="{{ availability.get(d.isoformat(), [])|join(',') }}">
+          {% endfor %}
+          <button type="submit" class="btn btn-primary">Save Availability</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function openUpdateHistoryModal(apptId, patientId, patientName, doctorName, department){
+  // Set basic information
+  document.getElementById('updateHistoryApptId').value = apptId;
+  document.getElementById('updateHistoryPatientId').value = patientId;
+  document.getElementById('updateHistoryPatient').value = patientName;
+  document.getElementById('updateHistoryDepartment').value = department;
+  // Store doctorName for later reuse when showing updated history
+  document.getElementById('viewHistoryDoctor').value = doctorName;
+  
+  // Form action will be set dynamically in the submit handler
+  
+  // Fetch additional appointment details from database
+  try {
+    const response = await fetch(`/api/appointment/${apptId}/details`);
+    if (response.ok) {
+      const data = await response.json();
+      // Update form fields with fetched data from database
+      document.getElementById('updateHistoryPatient').value = data.patient_name || patientName;
+      document.getElementById('updateHistoryDepartment').value = data.department || department;
+      
+      // Pre-populate visit type from database
+      const visitTypeSelect = document.getElementById('visitTypeSelect');
+      if (data.visit_type && visitTypeSelect) {
+        visitTypeSelect.value = data.visit_type;
+      }
+      
+      // Clear previous selections for multi-select fields
+      document.getElementById('testsDoneSelect').selectedIndex = -1;
+      document.getElementById('medicinesSelect').selectedIndex = -1;
+      
+      // Clear text areas for doctor input
+      document.getElementById('diagnosisTextarea').value = '';
+      document.getElementById('prescriptionTextarea').value = '';
+      
+      console.log('Fetched appointment details:', data);
+    } else {
+      console.error('Failed to fetch appointment details:', response.status);
+    }
+  } catch (error) {
+    console.error('Error fetching appointment details:', error);
+  }
+  
+  const m = new bootstrap.Modal(document.getElementById('updateHistoryModal'));
+  m.show();
+}
+
+async function openViewHistoryModalFetch(patientId, patientName, doctorName, department){
+  document.getElementById('viewHistoryPatient').value = patientName;
+  document.getElementById('viewHistoryDoctor').value = doctorName;
+  document.getElementById('viewHistoryDepartment').value = department;
+  const tbody = document.getElementById('viewHistoryTable');
+  tbody.innerHTML = '';
+  try {
+    const res = await fetch(`{{ url_for('api_patient_history', patient_id=0) }}`.replace('0', patientId));
+    const data = await res.json();
+    const items = (data && data.history) ? data.history : [];
+    if(items.length === 0){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="7" class="text-center text-muted">No history found</td>`;
+      tbody.appendChild(tr);
+    } else {
+      items.forEach((r,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><span class="badge bg-secondary">${i+1}</span></td><td>${r.visitType || ''}</td><td>${r.testsDone || ''}</td><td>${r.diagnosis || ''}</td><td>${r.prescription || ''}</td><td>${r.medicines || ''}</td><td>${r.date || ''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+  } catch (e) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="7" class="text-danger">Failed to load history</td>`;
+    tbody.appendChild(tr);
+  }
+  const m = new bootstrap.Modal(document.getElementById('viewHistoryModal'));
+  m.show();
+}
+
+function openAvailabilityModal(){
+  const m = new bootstrap.Modal(document.getElementById('availabilityModal'));
+  m.show();
+}
+
+// Toggle availability slot buttons and keep hidden inputs updated
+document.addEventListener('click', function(e){
+  if(e.target && e.target.classList.contains('toggle-slot')){
+    const btn = e.target;
+    const date = btn.getAttribute('data-date');
+    const time = btn.getAttribute('data-time');
+    const hidden = document.getElementById('hidden-'+date);
+    let vals = (hidden.value || '').split(',').map(s=>s.trim()).filter(Boolean);
+    if(btn.classList.contains('btn-success')){
+      // turn unavailable
+      btn.classList.remove('btn-success');
+      btn.classList.add('btn-outline-danger');
+      vals = vals.filter(v=>v !== time);
+    } else {
+      // make available
+      btn.classList.remove('btn-outline-danger');
+      btn.classList.add('btn-success');
+      if(!vals.includes(time)) vals.push(time);
+    }
+    hidden.value = vals.join(',');
+  }
+});
+
+// Mark appointment as completed
+async function markAsCompleted(apptId, patientName) {
+  if (!confirm(`Mark appointment with ${patientName} as completed?`)) {
+    return;
+  }
+  
+  try {
+    const formData = new FormData();
+    formData.append('status', 'Completed');
+    
+    const url = `/doctor/appointment/${apptId}/status`;
+    console.log('Marking as completed - URL:', url);
+    console.log('Form data:', Object.fromEntries(formData));
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    });
+    
+    console.log('Response status:', response.status);
+    const data = await response.json();
+    console.log('Response data:', data);
+    
+    if (response.ok && data.success) {
+      // Move appointment to completed section
+      moveAppointmentToCompleted(apptId, patientName);
+      // Remove from upcoming appointments
+      removeFromUpcoming(apptId);
+      // Show success message
+      showNotification(data.message || 'Appointment marked as completed', 'success');
+    } else {
+      throw new Error(data.error || 'Failed to update status');
+    }
+  } catch (error) {
+    console.error('Error marking as completed:', error);
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      showNotification('Network error: Unable to connect to server. Please check your connection and try again.', 'danger');
+    } else {
+      showNotification(error.message || 'Failed to mark as completed. Please try again.', 'danger');
+    }
+  }
+}
+
+// Cancel appointment
+async function cancelAppointment(apptId, patientName) {
+  if (!confirm(`Cancel appointment with ${patientName}?`)) {
+    return;
+  }
+  
+  try {
+    const formData = new FormData();
+    formData.append('status', 'Cancelled');
+    
+    const url = `/doctor/appointment/${apptId}/status`;
+    console.log('Cancelling appointment - URL:', url);
+    console.log('Form data:', Object.fromEntries(formData));
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    });
+    
+    console.log('Response status:', response.status);
+    const data = await response.json();
+    console.log('Response data:', data);
+    
+    if (response.ok && data.success) {
+      // Move appointment to cancelled section
+      moveAppointmentToCancelled(apptId, patientName);
+      // Remove from upcoming appointments
+      removeFromUpcoming(apptId);
+      // Show success message
+      showNotification(data.message || 'Appointment cancelled', 'success');
+    } else {
+      throw new Error(data.error || 'Failed to update status');
+    }
+  } catch (error) {
+    console.error('Error cancelling appointment:', error);
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      showNotification('Network error: Unable to connect to server. Please check your connection and try again.', 'danger');
+    } else {
+      showNotification(error.message || 'Failed to cancel appointment. Please try again.', 'danger');
+    }
+  }
+}
+
+// Move appointment to completed section
+function moveAppointmentToCompleted(apptId, patientName) {
+  const completedSection = document.getElementById('completedSection');
+  const completedTableBody = document.getElementById('completedTableBody');
+  const completedCount = document.getElementById('completedCount');
+  
+  // Get appointment data from the table row
+  const appointmentData = getAppointmentData(apptId);
+  
+  // Show completed section if hidden
+  if (completedSection.style.display === 'none') {
+    completedSection.style.display = 'block';
+  }
+  
+  // Add row to completed table
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><span class="badge bg-secondary">${completedTableBody.children.length + 1}</span></td>
+    <td><i class="bi bi-person-heart me-2 text-primary"></i>${patientName}</td>
+    <td>${appointmentData.date}</td>
+    <td><span class="badge bg-light text-dark">${appointmentData.time}</span></td>
+    <td><span class="badge bg-success">Completed</span></td>
+  `;
+  completedTableBody.appendChild(row);
+  
+  // Update count
+  const count = completedTableBody.children.length;
+  completedCount.textContent = `${count} appointment${count !== 1 ? 's' : ''}`;
+}
+
+// Move appointment to cancelled section
+function moveAppointmentToCancelled(apptId, patientName) {
+  const cancelledSection = document.getElementById('cancelledSection');
+  const cancelledTableBody = document.getElementById('cancelledTableBody');
+  const cancelledCount = document.getElementById('cancelledCount');
+  
+  // Get appointment data from the table row
+  const appointmentData = getAppointmentData(apptId);
+  
+  // Show cancelled section if hidden
+  if (cancelledSection.style.display === 'none') {
+    cancelledSection.style.display = 'block';
+  }
+  
+  // Add row to cancelled table
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><span class="badge bg-secondary">${cancelledTableBody.children.length + 1}</span></td>
+    <td><i class="bi bi-person-heart me-2 text-primary"></i>${patientName}</td>
+    <td>${appointmentData.date}</td>
+    <td><span class="badge bg-light text-dark">${appointmentData.time}</span></td>
+    <td><span class="badge bg-danger">Cancelled</span></td>
+  `;
+  cancelledTableBody.appendChild(row);
+  
+  // Update count
+  const count = cancelledTableBody.children.length;
+  cancelledCount.textContent = `${count} appointment${count !== 1 ? 's' : ''}`;
+}
+
+// Get appointment data from the table row
+function getAppointmentData(apptId) {
+  const upcomingTable = document.querySelector('.content-area .table-responsive table tbody');
+  const rows = upcomingTable.querySelectorAll('tr');
+  
+  for (let row of rows) {
+    const buttons = row.querySelectorAll('button');
+    for (let button of buttons) {
+      if (button.onclick && button.onclick.toString().includes(apptId)) {
+        const cells = row.querySelectorAll('td');
+        return {
+          date: cells[2] ? cells[2].textContent.trim() : new Date().toISOString().split('T')[0],
+          time: cells[3] ? cells[3].querySelector('.badge').textContent.trim() : 'N/A'
+        };
+      }
+    }
+  }
+  
+  return {
+    date: new Date().toISOString().split('T')[0],
+    time: 'N/A'
+  };
+}
+
+// Remove appointment from upcoming table
+function removeFromUpcoming(apptId) {
+  const upcomingTable = document.querySelector('.content-area .table-responsive table tbody');
+  const rows = upcomingTable.querySelectorAll('tr');
+  
+  for (let row of rows) {
+    const buttons = row.querySelectorAll('button');
+    for (let button of buttons) {
+      if (button.onclick && button.onclick.toString().includes(apptId)) {
+        row.remove();
+        break;
+      }
+    }
+  }
+  
+  // Update upcoming count
+  const upcomingCount = document.querySelector('.content-area .badge.bg-primary');
+  const remainingCount = upcomingTable.children.length;
+  upcomingCount.textContent = `${remainingCount} appointment${remainingCount !== 1 ? 's' : ''}`;
+  
+  // Hide upcoming section if no appointments left
+  if (remainingCount === 0) {
+    const upcomingSection = document.querySelector('.content-area');
+    const noAppointmentsDiv = upcomingSection.querySelector('.text-center.py-5');
+    if (noAppointmentsDiv) {
+      noAppointmentsDiv.style.display = 'block';
+    }
+  }
+}
+
+// Show notification
+function showNotification(message, type) {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+  notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+  notification.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 3000);
+}
+
+// Intercept Update History form submit to save via fetch and refresh history in-place
+document.getElementById('updateHistoryForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  
+  // Validate required fields
+  const diagnosis = document.getElementById('diagnosisTextarea').value.trim();
+  const prescription = document.getElementById('prescriptionTextarea').value.trim();
+  
+  if (!diagnosis) {
+    showNotification('Please enter a diagnosis', 'danger');
+    document.getElementById('diagnosisTextarea').focus();
+    return;
+  }
+  
+  if (!prescription) {
+    showNotification('Please enter prescription details', 'danger');
+    document.getElementById('prescriptionTextarea').focus();
+    return;
+  }
+  
+  const apptId = document.getElementById('updateHistoryApptId').value;
+  const patientId = document.getElementById('updateHistoryPatientId').value;
+  const patientName = document.getElementById('updateHistoryPatient').value;
+  const doctorName = document.getElementById('viewHistoryDoctor').value;
+  const department = document.getElementById('updateHistoryDepartment').value;
+
+  // Construct the action URL with the appointment ID
+  const actionUrl = `/doctor/appointment/${apptId}/add_treatment`;
+  const formData = new FormData(this);
+  
+  console.log('Submitting form to:', actionUrl);
+  console.log('Form data:', Object.fromEntries(formData));
+  
+  try {
+    const res = await fetch(actionUrl, { method: 'POST', body: formData });
+    console.log('Response status:', res.status);
+    const data = await res.json();
+    console.log('Response data:', data);
+    
+    if(res.ok && data.success){
+      // Show success message
+      showNotification(data.message || 'Patient history updated successfully', 'success');
+      
+      // Close update modal
+      bootstrap.Modal.getInstance(document.getElementById('updateHistoryModal')).hide();
+      
+      // Open refreshed history modal to show updated data
+      await openViewHistoryModalFetch(patientId, patientName, doctorName, department);
+    } else {
+      throw new Error(data.error || 'Save failed');
+    }
+  } catch(err){
+    console.error('Error saving patient history:', err);
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      showNotification('Network error: Unable to connect to server. Please check your connection and try again.', 'danger');
+    } else {
+      showNotification(err.message || 'Failed to save history. Please try again.', 'danger');
+    }
+  }
+});
+
+// Add visual feedback for multi-select dropdowns
+document.addEventListener('DOMContentLoaded', function() {
+  const multiSelects = document.querySelectorAll('select[multiple]');
+  multiSelects.forEach(select => {
+    select.addEventListener('change', function() {
+      const selectedCount = this.selectedOptions.length;
+      const label = this.previousElementSibling;
+      if (label && label.tagName === 'LABEL') {
+        const icon = label.querySelector('i');
+        if (selectedCount > 0) {
+          if (icon) icon.className = 'bi bi-check-circle-fill me-2 text-success';
+          label.classList.add('text-success');
+        } else {
+          if (icon) icon.className = icon.className.replace('bi-check-circle-fill text-success', 'bi-clipboard-data');
+          label.classList.remove('text-success');
+        }
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

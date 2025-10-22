@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% block title %}Dr. {{ doctor.user.full_name }} - Profile{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h3><i class="bi bi-person-badge me-2"></i>Dr. {{ doctor.user.full_name }}</h3>
+    <p class="text-muted mb-0">Doctor Profile and Appointment Booking</p>
+  </div>
+  <div>
+    <a href="{{ url_for('patient_dashboard') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+  </div>
+</div>
+
+<div class="content-area">
+  <div class="row">
+    <!-- Doctor Profile Card -->
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <!-- Profile Picture -->
+          <div class="mb-3">
+            <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" 
+                 style="width: 120px; height: 120px;">
+              <i class="bi bi-person text-white" style="font-size: 3rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Doctor Info -->
+          <h5 class="card-title">{{ doctor.user.full_name }}</h5>
+          <p class="text-muted mb-2">
+            <i class="bi bi-mortarboard me-1"></i>{{ doctor.specialization }}
+          </p>
+          {% if doctor.department %}
+            <p class="text-muted mb-3">
+              <i class="bi bi-building me-1"></i>{{ doctor.department.name }}
+            </p>
+          {% endif %}
+          
+          <!-- Description -->
+          <p class="card-text small">
+            Experienced medical professional specializing in {{ doctor.specialization }}. 
+            Committed to providing high-quality healthcare services and patient care.
+          </p>
+          
+          <!-- Action Buttons -->
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('patient_doctor_availability', doctor_id=doctor.id) }}" class="btn btn-primary">
+              <i class="bi bi-calendar-check me-1"></i>Check Availability
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Doctor Details and Navigation -->
+    <div class="col-md-8">
+      <!-- Navigation between doctors -->
+      {% if other_doctors %}
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <i class="bi bi-arrow-left-right me-1"></i>Other Doctors in {{ doctor.department.name }}
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              {% for other_doctor in other_doctors %}
+                <div class="col-md-6 mb-2">
+                  <div class="d-flex align-items-center p-2 border rounded">
+                    <div class="flex-shrink-0 me-3">
+                      <i class="bi bi-person-circle text-primary" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">{{ other_doctor.user.full_name }}</h6>
+                      <p class="text-muted small mb-0">{{ other_doctor.specialization }}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                      <a href="{{ url_for('doctor_profile_detail', doctor_id=other_doctor.id) }}" 
+                         class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i>View
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      
+      <!-- Availability Section -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="bi bi-calendar-event me-1"></i>Available Time Slots
+          </h6>
+        </div>
+        <div class="card-body">
+          {% if availability %}
+            <div class="row">
+              {% for date_str, times in availability.items() %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                  <div class="card">
+                    <div class="card-header">
+                      <h6 class="mb-0">
+                        <i class="bi bi-calendar-date me-1"></i>{{ date_str }}
+                      </h6>
+                    </div>
+                    <div class="card-body">
+                      {% if times %}
+                        <div class="d-grid gap-2">
+                          {% for time in times %}
+                            <button class="btn btn-outline-primary btn-sm time-slot-btn" 
+                                    data-date="{{ date_str }}" 
+                                    data-time="{{ time }}"
+                                    onclick="selectTimeSlot('{{ date_str }}', '{{ time }}')">
+                              <i class="bi bi-clock me-1"></i>{{ time }}
+                            </button>
+                          {% endfor %}
+                        </div>
+                      {% else %}
+                        <p class="text-muted mb-0">No available slots</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-4">
+              <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+              <h6 class="text-muted mt-2">No availability set</h6>
+              <p class="text-muted small">This doctor hasn't set their availability yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Booking Form -->
+  <div id="booking-form" class="mt-4" style="display: none;">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-calendar-plus me-1"></i>Book Appointment
+        </h6>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('doctor_profile', doctor_id=doctor.id) }}">
+          <div class="row">
+            <div class="col-md-6">
+              <label class="form-label">Selected Date</label>
+              <input type="text" id="selected-date" class="form-control" readonly>
+              <input type="hidden" name="date" id="hidden-date">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Selected Time</label>
+              <input type="text" id="selected-time" class="form-control" readonly>
+              <input type="hidden" name="time" id="hidden-time">
+            </div>
+          </div>
+          <div class="mt-3">
+            <button type="submit" class="btn btn-success me-2">
+              <i class="bi bi-check-circle me-1"></i>Confirm Booking
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="cancelBooking()">
+              <i class="bi bi-x-circle me-1"></i>Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectTimeSlot(date, time) {
+    // Remove active class from all buttons
+    document.querySelectorAll('.time-slot-btn').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+    
+    // Add active class to selected button
+    event.target.classList.remove('btn-outline-primary');
+    event.target.classList.add('btn-primary');
+    
+    // Show booking form
+    document.getElementById('selected-date').value = date;
+    document.getElementById('selected-time').value = time;
+    document.getElementById('hidden-date').value = date;
+    document.getElementById('hidden-time').value = time;
+    document.getElementById('booking-form').style.display = 'block';
+    
+    // Scroll to booking form
+    document.getElementById('booking-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function cancelBooking() {
+    // Reset form
+    document.getElementById('booking-form').style.display = 'none';
+    document.getElementById('selected-date').value = '';
+    document.getElementById('selected-time').value = '';
+    document.getElementById('hidden-date').value = '';
+    document.getElementById('hidden-time').value = '';
+    
+    // Reset button styles
+    document.querySelectorAll('.time-slot-btn').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+}
+</script>
+{% endblock %}

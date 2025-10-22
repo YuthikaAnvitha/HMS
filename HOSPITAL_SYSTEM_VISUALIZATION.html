@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System - Complete Functionality Showcase</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+        }
+        .showcase-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .section {
+            padding: 40px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .feature-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #2563eb;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card h4 {
+            color: #2563eb;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .feature-card .icon {
+            font-size: 2rem;
+            margin-right: 15px;
+        }
+        .page-showcase {
+            background: #f1f5f9;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .page-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .page-feature {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #059669;
+        }
+        .page-feature h6 {
+            color: #059669;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .stat-card .label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .admin-dashboard-showcase {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .table-showcase {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .table-showcase th {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+        }
+        .table-showcase td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .badge-success { background: #10b981; color: white; }
+        .badge-warning { background: #f59e0b; color: white; }
+        .badge-danger { background: #ef4444; color: white; }
+        .badge-primary { background: #3b82f6; color: white; }
+    </style>
+</head>
+<body>
+    <div class="showcase-container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="bi bi-hospital me-3"></i>Hospital Management System</h1>
+            <p>Complete Healthcare Management Solution with Professional Design</p>
+        </div>
+
+        <!-- System Overview -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="bi bi-speedometer2 me-3"></i>System Overview
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><i class="bi bi-shield-check icon"></i>Secure Authentication</h4>
+                    <p>Role-based access control with secure login system for administrators, doctors, and patients.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="bi bi-people icon"></i>Multi-User Support</h4>
+                    <p>Three distinct user roles with specialized dashboards and functionality for each user type.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="bi bi-calendar-check icon"></i>Appointment Management</h4>
+                    <p>Complete appointment lifecycle management from booking to completion with status tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="bi bi-clipboard-pulse icon"></i>Medical Records</h4>
+                    <p>Comprehensive patient history tracking with diagnosis, prescriptions, and treatment records.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard Features -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="bi bi-person-gear me-3"></i>Admin Dashboard - Complete Management
+            </h2>
+            
+            <div class="admin-dashboard-showcase">
+                <h4 class="mb-4"><i class="bi bi-bar-chart me-2"></i>System Statistics</h4>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="number">25</div>
+                        <div class="label">Total Doctors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">150</div>
+                        <div class="label">Registered Patients</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">89</div>
+                        <div class="label">Active Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">100%</div>
+                        <div class="label">System Health</div>
+                    </div>
+                </div>
+
+                <h4 class="mb-4 mt-5"><i class="bi bi-person-badge me-2"></i>Registered Doctors Management</h4>
+                <div class="table-showcase">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Doctor Name</th>
+                                <th>Professional Domain</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-primary">1</span></td>
+                                <td><i class="bi bi-person-badge me-2 text-success"></i><strong>Dr. Sarah Johnson</strong></td>
+                                <td>Cardiology</td>
+                                <td>Heart Center</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger me-1"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-warning"><i class="bi bi-person-x"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-primary">2</span></td>
+                                <td><i class="bi bi-person-badge me-2 text-success"></i><strong>Dr. Michael Chen</strong></td>
+                                <td>Neurology</td>
+                                <td>Neurology Department</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger me-1"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-warning"><i class="bi bi-person-x"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="mb-4 mt-5"><i class="bi bi-people me-2"></i>Registered Patients Management</h4>
+                <div class="table-showcase">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Patient Name</th>
+                                <th>Username</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-primary">1</span></td>
+                                <td><i class="bi bi-person-heart me-2 text-primary"></i><strong>John Smith</strong></td>
+                                <td>johnsmith</td>
+                                <td>2024-01-15</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger me-1"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-warning"><i class="bi bi-person-x"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="mb-4 mt-5"><i class="bi bi-calendar-event me-2"></i>Upcoming Appointments with Patient History</h4>
+                <div class="table-showcase">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Patient Name</th>
+                                <th>Doctor Name</th>
+                                <th>Department</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Patient History</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-primary">1</span></td>
+                                <td><i class="bi bi-person-heart me-2 text-primary"></i>John Smith</td>
+                                <td><i class="bi bi-person-badge me-2 text-success"></i>Dr. Sarah Johnson</td>
+                                <td>Heart Center</td>
+                                <td>2024-01-20</td>
+                                <td><span class="badge badge-primary">10:00 AM</span></td>
+                                <td><button class="btn btn-outline-info btn-sm"><i class="bi bi-eye me-1"></i>View</button></td>
+                                <td><span class="badge badge-warning">Scheduled</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient History Modal Showcase -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="bi bi-clipboard-check me-3"></i>Patient History Modal - Complete Medical Records
+            </h2>
+            
+            <div class="page-showcase">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-person-heart text-primary" style="font-size: 3rem;"></i>
+                                <h6 class="mt-2 mb-1">John Smith</h6>
+                                <small class="text-muted">Patient</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-person-badge text-success" style="font-size: 3rem;"></i>
+                                <h6 class="mt-2 mb-1">Dr. Sarah Johnson</h6>
+                                <small class="text-muted">Treating Doctor</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-building text-info" style="font-size: 3rem;"></i>
+                                <h6 class="mt-2 mb-1">Heart Center</h6>
+                                <small class="text-muted">Medical Department</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-showcase">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Visit Type</th>
+                                <th>Tests Done</th>
+                                <th>Diagnosis</th>
+                                <th>Prescription</th>
+                                <th>Medicines Name</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-primary">1</span></td>
+                                <td>Regular Checkup</td>
+                                <td>Blood Test, X-Ray</td>
+                                <td>Common Cold</td>
+                                <td>Antibiotics, Rest</td>
+                                <td>Paracetamol, Amoxicillin</td>
+                                <td>2024-01-15</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-primary">2</span></td>
+                                <td>Follow-up</td>
+                                <td>Blood Pressure Check</td>
+                                <td>Hypertension</td>
+                                <td>Blood Pressure Medication</td>
+                                <td>Lisinopril</td>
+                                <td>2024-01-10</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Pages Overview -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="bi bi-grid me-3"></i>Complete System Pages
+            </h2>
+            
+            <div class="feature-grid">
+                <div class="page-showcase">
+                    <h4 class="page-title"><i class="bi bi-box-arrow-in-right me-2"></i>Authentication Pages</h4>
+                    <div class="page-features">
+                        <div class="page-feature">
+                            <h6>Login Page</h6>
+                            <p>Secure authentication with modern card design and default admin credentials.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Registration Page</h6>
+                            <p>Patient self-registration with professional form styling and validation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-showcase">
+                    <h4 class="page-title"><i class="bi bi-person-gear me-2"></i>Admin Pages</h4>
+                    <div class="page-features">
+                        <div class="page-feature">
+                            <h6>Admin Dashboard</h6>
+                            <p>Complete system management with statistics, doctor/patient management, and appointment tracking.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Create Doctor</h6>
+                            <p>Professional form for adding new doctors with specialization and department assignment.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Admin Search</h6>
+                            <p>Advanced search functionality for patients and doctors with management controls.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-showcase">
+                    <h4 class="page-title"><i class="bi bi-person-badge me-2"></i>Doctor Pages</h4>
+                    <div class="page-features">
+                        <div class="page-feature">
+                            <h6>Doctor Dashboard</h6>
+                            <p>Appointment management with patient information and treatment controls.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Set Availability</h6>
+                            <p>7-day schedule management with time slot configuration.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Treat Appointment</h6>
+                            <p>Comprehensive treatment form with diagnosis, prescription, and notes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-showcase">
+                    <h4 class="page-title"><i class="bi bi-person-heart me-2"></i>Patient Pages</h4>
+                    <div class="page-features">
+                        <div class="page-feature">
+                            <h6>Patient Dashboard</h6>
+                            <p>Doctor discovery, appointment booking, and personal appointment management.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Search Doctors</h6>
+                            <p>Advanced doctor search with specialization filters and direct booking.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Doctor Profile</h6>
+                            <p>Detailed doctor information with availability and appointment booking.</p>
+                        </div>
+                        <div class="page-feature">
+                            <h6>Appointment History</h6>
+                            <p>Complete treatment history with expandable accordion view.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Features -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="bi bi-code-slash me-3"></i>Technical Features
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><i class="bi bi-palette icon"></i>Professional Design</h4>
+                    <p>Modern medical-grade UI with consistent styling, gradient themes, and professional color schemes.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="bi bi-phone icon"></i>Responsive Design</h4>
+                    <p>Mobile-first approach with Bootstrap 5, optimized for desktop, tablet, and mobile devices.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="bi bi-shield-lock icon"></i>Security</h4>
+                    <p>Role-based access control, secure authentication, and data protection measures.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="bi bi-lightning icon"></i>Performance</h4>
+                    <p>Optimized CSS, efficient database queries, and fast loading times for better user experience.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="header">
+            <h3><i class="bi bi-hospital me-2"></i>Complete Hospital Management Solution</h3>
+            <p>Professional, Modern, and Comprehensive Healthcare Management System</p>
+        </div>
+    </div>
+</body>
+</html>
