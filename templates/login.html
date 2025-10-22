@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card p-3">
+      <h4>Login</h4>
+      <form method="post">
+        <input name="username" class="form-control mb-2" placeholder="Username" required>
+        <input name="password" type="password" class="form-control mb-2" placeholder="Password" required>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary">Login</button>
+          <a class="btn btn-link" href="{{ url_for('register') }}">Register as patient</a>
+        </div>
+      </form>
+      <div class="mt-3 text-muted small">
+        Default admin created automatically: <b>username=admin</b> <br>password = <b>admin123</b>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Create Doctor</h4>
+<form method="post">
+  <input name="username" class="form-control mb-2" placeholder="username" required>
+  <input name="password" type="password" class="form-control mb-2" placeholder="password" required>
+  <input name="full_name" class="form-control mb-2" placeholder="Full name">
+  <input name="specialization" class="form-control mb-2" placeholder="Specialization">
+  <select name="department_id" class="form-select mb-2">
+    <option value="">--Select Department (optional)--</option>
+    {% for dept in departments %}
+      <option value="{{ dept.id }}">{{ dept.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary">Create</button>
+</form>
+{% endblock %}

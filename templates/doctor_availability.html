@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Set Availability (Next 7 days)</h4>
+<form method="post">
+  {% for d in dates %}
+    <div class="mb-2">
+      <label class="form-label">{{ d.isoformat() }}</label>
+      <input class="form-control" name="slots-{{ d.isoformat() }}" placeholder="Enter comma separated times e.g. 09:00,10:00" value="{{ availability.get(d.isoformat(), '') | join(',') }}">
+      <div class="form-text">Times should match Doctor's slot format (e.g. 09:00)</div>
+    </div>
+  {% endfor %}
+  <button class="btn btn-primary">Save Availability</button>
+</form>
+{% endblock %}

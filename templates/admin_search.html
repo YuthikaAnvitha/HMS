@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Admin Search</h4>
+<form class="row g-2 mb-3">
+  <div class="col-auto">
+    <select class="form-select" name="type">
+      <option value="patient" {% if type_=='patient' %}selected{% endif %}>Patients</option>
+      <option value="doctor" {% if type_=='doctor' %}selected{% endif %}>Doctors</option>
+    </select>
+  </div>
+  <div class="col">
+    <input name="q" value="{{ q }}" class="form-control" placeholder="Search by name/username/id">
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary">Search</button>
+  </div>
+</form>
+
+{% if type_=='patient' %}
+  <h5>Results (Patients)</h5>
+  <ul class="list-group">
+  {% for p in results %}
+    <li class="list-group-item">
+      ID:{{ p.id }} — {{ p.user.full_name }} ({{ p.user.username }}) 
+      <form style="display:inline" method="post" action="{{ url_for('admin_toggle_active', user_id=p.user.id) }}">
+        <button class="btn btn-sm btn-outline-danger float-end">{{ 'Deactivate' if p.user.active else 'Activate' }}</button>
+      </form>
+    </li>
+  {% else %}
+    <li class="list-group-item">No results</li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <h5>Results (Doctors)</h5>
+  <ul class="list-group">
+  {% for d in results %}
+    <li class="list-group-item">
+      ID:{{ d.id }} — {{ d.user.full_name }} ({{ d.user.username }}) — {{ d.specialization }}
+      <form style="display:inline" method="post" action="{{ url_for('admin_toggle_active', user_id=d.user.id) }}">
+        <button class="btn btn-sm btn-outline-danger float-end">{{ 'Deactivate' if d.user.active else 'Activate' }}</button>
+      </form>
+    </li>
+  {% else %}
+    <li class="list-group-item">No results</li>
+  {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

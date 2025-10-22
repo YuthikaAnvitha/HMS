@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Doctor: {{ doctor.user.full_name }}</h4>
+<p>Specialization: {{ doctor.specialization }} | Department: {{ doctor.department.name if doctor.department else '—' }}</p>
+
+<h5>Availability (next 7 days)</h5>
+<form method="post">
+  <div class="row">
+    <div class="col-md-4">
+      <label class="form-label">Choose Date</label>
+      <select name="date" class="form-select">
+        {% for d in next7 %}
+          <option value="{{ d.isoformat() }}">{{ d.isoformat() }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Choose Time (available slots shown)</label>
+      <select name="time" class="form-select">
+        {% for d in next7 %}
+          {% set ds = availability.get(d.isoformat(), []) %}
+          {% for t in ds %}
+            <option value="{{ t }}">{{ d.isoformat() }} {{ t }}</option>
+          {% endfor %}
+        {% endfor %}
+        <!-- If doctor hasn't set availability we allow manual input -->
+      </select>
+    </div>
+    <div class="col-md-4 align-self-end">
+      <button class="btn btn-primary">Book Appointment</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

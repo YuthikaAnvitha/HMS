@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Search Patients (Admin)</h4>
+<form class="row g-2 mb-3">
+  <div class="col"><input name="q" value="{{ q }}" class="form-control" placeholder="name or id"></div>
+  <div class="col-auto"><button class="btn btn-primary">Search</button></div>
+</form>
+
+<ul class="list-group">
+  {% for p in patients %}
+    <li class="list-group-item">ID: {{ p.id }} — {{ p.user.full_name }} ({{ p.user.username }})</li>
+  {% else %}
+    <li class="list-group-item">No patients found</li>
+  {% endfor %}
+</ul>
+{% endblock %}

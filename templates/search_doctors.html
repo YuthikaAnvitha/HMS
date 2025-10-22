@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Doctor Search Results</h4>
+<form class="row g-2 mb-3">
+  <div class="col-md-4"><input name="q" value="{{ q }}" class="form-control" placeholder="Name"></div>
+  <div class="col-md-4"><input name="dept" value="{{ dept }}" class="form-control" placeholder="Specialization"></div>
+  <div class="col-md-2"><button class="btn btn-primary">Search</button></div>
+</form>
+
+<div class="row">
+  {% for d in doctors %}
+    <div class="col-md-4">
+      <div class="card p-2 mb-2">
+        <h6>{{ d.user.full_name }}</h6>
+        <p class="small">{{ d.specialization }} | {{ d.department.name if d.department else '' }}</p>
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('doctor_profile', doctor_id=d.id) }}">View & Book</a>
+      </div>
+    </div>
+  {% else %}
+    <div class="col-12">No doctors found</div>
+  {% endfor %}
+</div>
+{% endblock %}

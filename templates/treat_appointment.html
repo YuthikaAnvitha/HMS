@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Treat Appointment #{{ appt.id }}</h4>
+<p>Patient: {{ appt.patient.user.full_name }} — Date: {{ appt.date }} Time: {{ appt.time }}</p>
+<form method="post">
+  <div class="mb-2">
+    <textarea class="form-control" name="diagnosis" placeholder="Diagnosis"></textarea>
+  </div>
+  <div class="mb-2">
+    <textarea class="form-control" name="prescription" placeholder="Prescription"></textarea>
+  </div>
+  <div class="mb-2">
+    <textarea class="form-control" name="notes" placeholder="Notes"></textarea>
+  </div>
+  <button class="btn btn-success">Save Treatment & Mark Completed</button>
+</form>
+{% endblock %}
